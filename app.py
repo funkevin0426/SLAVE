@@ -11,7 +11,7 @@ import requests
 from sqlalchemy import or_ , func, desc, and_
 
 # 환경 변수 로드
-dotenv.load_dotenv('C:\\Users\\jihoo\\파이썬\\data\\Data.env')
+dotenv.load_dotenv()
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
 
@@ -27,7 +27,7 @@ CORS(app, supports_credentials=True)
 app.secret_key = os.environ.get('SECRET_KEY', 'my-very-secret-key-123')
 
 # SQLite DB 경로 설정
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:/Users/jihoo/파이썬/SLAVE/instance/posts.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/posts.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
