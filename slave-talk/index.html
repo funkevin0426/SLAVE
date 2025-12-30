@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>Slave</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f2f5;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #2c3e50;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.5rem;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 2rem auto;
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .write-btn {
+      margin-bottom: 1rem;
+      background-color: #2ecc71;
+      text-decoration: none;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      display: inline-block;
+      border-radius: 4px;
+    }
+
+    .search-box {
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .search-box input[type="text"],
+    .search-box select {
+      flex-grow: 1;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .search-box button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .search-box button:hover {
+      background-color: #2980b9;
+    }
+
+    .post {
+      border-bottom: 1px solid #ddd;
+      padding: 1rem 0;
+      cursor: pointer;
+    }
+
+    .post:last-child {
+      border-bottom: none;
+    }
+
+    .post-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .post-preview {
+      margin-top: 4px;
+      font-size: 0.95rem;
+      color: #444;
+    }
+
+    .post-ip {
+      color: #888;
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+
+    .pagination {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .pagination button {
+      margin: 0 5px;
+      padding: 5px 10px;
+      border: 1px solid #ccc;
+      background-color: white;
+      cursor: pointer;
+    }
+
+    .pagination button.active {
+      font-weight: bold;
+      background-color: #eee;
+    }
+
+    mark {
+      background-color: #ffeaa7;
+      color: black;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <header>Slave 게시판</header>
+  <div class="container" id="post-list">
+    <a href="write.html" class="write-btn">✏️ 새 글 쓰기</a>
+    <a href="admin_login.html" style="
+        float: right;
+        margin: 10px;
+        padding: 7px 11px;
+        background-color: #3498db;
+        color: white;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: bold;
+    ">관리자 로그인</a> 
+    <div class="search-box">
+      <input type="text" id="search-input" placeholder="게시글 제목 또는 내용 검색" />
+      <select id="tag-select">
+        <option value="">전체 태그</option>
+        <option value="질문">질문</option>
+        <option value="공부">공부</option>
+        <option value="잡글">잡글</option>
+      </select>
+      <select id="sort-select">
+        <option value="latest">최신순</option>
+        <option value="oldest">오래된순</option>
+        <option value="popular">댓글많은순</option>
+      </select>
+      <button id="search-btn">검색</button>
+    </div>
+    <div id="posts"></div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+
+  <script>
+      function maskIp(ip) {
+        return ip.substring(0, 4) + '****';
+      }
+
+    window.onload = async () => {
+      await checkAdminStatus();
+      await loadPosts(currentPage);
+    };
+      async function checkAdminStatus() {
+      const res = await fetch('http://127.0.0.1:5000/is_admin', { credentials: 'include' });
+      const data = await res.json();
+      sessionStorage.setItem('isAdmin', data.is_admin ? 'true' : 'false');
+    }
+    const POSTS_PER_PAGE = 20;
+    let currentPage = 1;
+
+    async function loadPosts(page = 1) {
+      currentPage = page;
+      const query = document.getElementById('search-input').value.trim();
+      const tag = document.getElementById('tag-select').value;
+      const order = document.getElementById('sort-select').value;
+
+      const url = new URL('http://127.0.0.1:5000/posts');
+      url.searchParams.set('page', page);
+      if (query) url.searchParams.set('query', query);
+      if (tag) url.searchParams.set('tag', tag);
+      if (order) url.searchParams.set('order', order);
+
+      const res = await fetch(url.toString());
+      const data = await res.json();
+      const postsDiv = document.getElementById('posts');
+      postsDiv.innerHTML = '';
+
+      if (data.posts.length === 0) {
+        postsDiv.innerHTML = '<p>검색 결과가 없습니다.</p>';
+        return;
+      }
+
+      const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(escapedQuery, 'gi');
+
+      data.posts.forEach(post => {
+        const div = document.createElement('div');
+
+        div.className = 'post';
+
+        const highlightedTitle = query ? post.title.replace(regex, m => `<mark>${m}</mark>`) : post.title;
+        let previewText = post.content.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+        if (previewText.length > 100) previewText = previewText.slice(0, 100) + '...';
+        const highlightedPreview = query ? previewText.replace(regex, m => `<mark>${m}</mark>`) : previewText;
+        
+        const isAdmin = sessionStorage.getItem('isAdmin') === 'true';
+        const ipDisplay = isAdmin ? post.ip : maskIp(post.ip);
+        div.innerHTML = `
+          <div class="post-title">${highlightedTitle}</div>
+          <div class="post-preview">${highlightedPreview}</div>
+          <div class="post-ip">
+              작성자: ${ipDisplay} |
+              학년: ${post.grade || '정보 없음'} |
+              태그: ${post.tag || '없음'} |
+              댓글수: ${post.comment_count}
+            </div>
+          `;
+        if (isAdmin) {
+          html += `<button onclick="deletePost(${post.id})">삭제</button>`;
+        }
+        div.onclick = () => {
+          window.location.href = `view.html?id=${post.id}`;
+        };
+        postsDiv.appendChild(div);
+      });
+
+      renderPagination(data.total_pages);
+    }
+
+    function renderPagination(totalPages) {
+      const paginationDiv = document.getElementById('pagination');
+      paginationDiv.innerHTML = '';
+
+      for (let i = 1; i <= totalPages; i++) {
+        const button = document.createElement('button');
+        button.textContent = i;
+        if (i === currentPage) button.classList.add('active');
+        button.onclick = () => loadPosts(i);
+        paginationDiv.appendChild(button);
+      }
+    }
+
+    document.getElementById('search-btn').addEventListener('click', () => loadPosts(1));
+    document.getElementById('search-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') loadPosts(1);
+    });
+    document.getElementById('tag-select').addEventListener('change', () => loadPosts(1));
+    document.getElementById('sort-select').addEventListener('change', () => loadPosts(1));
+
+    loadPosts(currentPage);
+  </script>
+</body>
+</html>

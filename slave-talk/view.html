@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>게시글 보기</title>
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: #f9f9f9;
+      margin: 0 auto;
+      max-width: 800px;
+      padding: 20px;
+    }
+
+    .post-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      position: relative;
+      flex-wrap: wrap;
+    }
+
+    .title-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex-grow: 1;
+    }
+
+    #post-title {
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+
+    #post-grade {
+      font-size: 14px;
+      color: #888;
+    }
+
+    .post-author {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .post-content {
+      font-size: 16px;
+      padding: 15px;
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-bottom: 30px;
+    }
+
+    .edited {
+      font-size: 11px;
+      color: #999;
+      margin-left: 5px;
+    }
+
+    .post-menu-btn {
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .post-menu {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 30px;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      z-index: 10;
+    }
+
+    .post-menu div {
+      padding: 8px 10px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .post-menu div:hover {
+      background-color: #f0f0f0;
+    }
+
+    #comments-list {
+      margin-top: 20px;
+    }
+
+    .comment {
+      background-color: #fff;
+      border: 1px solid #eee;
+      border-radius: 5px;
+      padding: 10px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .comment-ip {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 5px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 70px;
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      resize: vertical;
+    }
+
+    #comment-btn {
+      margin-top: 10px;
+      padding: 8px 16px;
+      font-size: 14px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #comment-btn:hover {
+      background-color: #2980b9;
+    }
+
+    .comment-menu-btn {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .comment-menu {
+      display: none;
+      position: absolute;
+      right: 10px;
+      top: 25px;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      z-index: 10;
+    }
+
+    .comment-menu div {
+      padding: 8px 10px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .comment-menu div:hover {
+      background-color: #f0f0f0;
+    }
+
+    /* 신고 모달 */
+    #report-modal-bg {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    #report-modal {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      width: 340px;
+      padding: 24px;
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    #report-modal h3 {
+      margin-top: 0;
+      font-size: 18px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .report-option {
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .report-option input[type="radio"] {
+      accent-color: #3498db;
+      transform: scale(1.2);
+    }
+
+    #report-other {
+      width: 100%;
+      margin-top: 8px;
+      padding: 8px;
+      font-size: 14px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      display: none;
+      resize: none;
+    }
+
+    #report-modal .modal-actions {
+      text-align: right;
+      margin-top: 16px;
+    }
+
+    #report-modal .modal-actions button {
+      background: #3498db;
+      color: white;
+      padding: 8px 16px;
+      font-size: 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #report-modal .modal-actions button:hover {
+      background: #2980b9;
+    }
+
+    #report-modal .close-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: transparent;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+    }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.3/dist/purify.min.js"></script>
+</head>
+<body>
+  <div class="post-header">
+    <div class="title-wrapper">
+      <h1 id="post-title">로딩 중...</h1>
+      <span id="post-grade">(정보 없음)</span>
+      <span id="post-tag" class="post-author">태그: 로딩 중...</span>
+      <span id="post-author" class="post-author">작성자: 로딩 중...</span>
+    </div>
+    <div class="post-menu-btn">⋮</div>
+    <div class="post-menu" id="post-menu"></div>
+  </div>
+
+  <div class="post-content" id="post-content">게시글 내용을 불러오는 중입니다.</div>
+
+  <h3>댓글</h3>
+  <div id="comments-list">
+    <p>댓글을 불러오는 중...</p>
+  </div>
+
+  <textarea id="comment-input" placeholder="댓글을 입력하세요..."></textarea>
+  <button id="comment-btn">댓글 작성</button>
+
+  <!-- 신고 모달 -->
+  <div id="report-modal-bg">
+    <div id="report-modal">
+      <button class="close-btn" onclick="closeReportModal()">×</button>
+      <h3>신고 사유를 선택해주세요</h3>
+      <div class="report-option"><input type="radio" name="report-reason" value="글이 너무 선정적이에요"> 글이 너무 선정적이에요</div>
+      <div class="report-option"><input type="radio" name="report-reason" value="타인을 비방, 비난하는 내용이에요"> 타인을 비방, 비난하는 내용이에요</div>
+      <div class="report-option"><input type="radio" name="report-reason" value="보는 이들에게 불쾌감을 조성해요"> 보는 이들에게 불쾌감을 조성해요</div>
+      <div class="report-option"><input type="radio" name="report-reason" value="기타"> 기타</div>
+      <textarea id="report-other" rows="3" placeholder="기타 사유를 입력하세요..."></textarea>
+      <div class="modal-actions"><button onclick="submitReport()">신고하기</button></div>
+    </div>
+  </div>
+
+  <script>
+    const postId = new URLSearchParams(window.location.search).get('id');
+    let myIp = '';
+    let postIp = '';
+
+    async function getMyIp() {
+      const res = await fetch('http://127.0.0.1:5000/my-ip');
+      const data = await res.json();
+      myIp = data.ip;
+    }
+
+    async function getMyIpAndPost() {
+      await getMyIp();
+      const res = await fetch(`http://127.0.0.1:5000/posts/${postId}`);
+      const data = await res.json();
+      postIp = data.ip;
+
+      document.getElementById('post-title').innerHTML = `${data.title} ${data.edited ? '<span class="edited">(수정됨)</span>' : ''}`;
+      document.getElementById('post-grade').textContent = data.grade ? `(${data.grade})` : '(정보 없음)';
+      document.getElementById('post-tag').textContent = `태그: ${data.tag || '정보 없음'}`;
+      document.getElementById('post-author').textContent = `작성자: ${postIp || '알 수 없음'}`;
+      document.getElementById('post-content').innerHTML = DOMPurify.sanitize(marked.parse(data.content));
+
+      const menu = document.getElementById('post-menu');
+      if (myIp === postIp) {
+        menu.innerHTML = `<div onclick="enablePostEdit()">게시글 수정</div><div onclick="deletePost()">게시글 삭제</div>`;
+      } else {
+        menu.innerHTML = `<div onclick="openReportModal('post', ${postId})">게시글 신고</div>`;
+      }
+    }
+
+    async function loadComments() {
+      const res = await fetch(`http://127.0.0.1:5000/posts/${postId}`);
+      const data = await res.json();
+      const commentsDiv = document.getElementById('comments-list');
+      commentsDiv.innerHTML = '';
+
+      data.comments.forEach(comment => {
+        const div = document.createElement('div');
+        div.className = 'comment';
+        div.setAttribute('data-id', comment.id);
+        div.innerHTML = `
+          <div class="comment-ip">작성자: ${comment.ip}</div>
+          <div class="comment-content">${DOMPurify.sanitize(marked.parse(comment.content))}${comment.edited ? '<span class="edited">(수정됨)</span>' : ''}</div>
+          <div class="comment-menu-btn">⋮</div>
+          <div class="comment-menu"></div>
+        `;
+
+        const menu = div.querySelector('.comment-menu');
+        if (comment.ip === myIp) {
+          menu.innerHTML = `<div onclick="enableCommentEdit(${comment.id})">댓글 수정</div><div onclick="deleteComment(${comment.id})">댓글 삭제</div>`;
+        } else {
+          menu.innerHTML = `<div onclick="openReportModal('comment', ${comment.id})">댓글 신고</div>`;
+        }
+
+        div.querySelector('.comment-menu-btn').onclick = () => {
+          menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        };
+
+        commentsDiv.appendChild(div);
+      });
+    }
+
+    async function deletePost() {
+      if (!confirm("정말 삭제하시겠습니까?")) return;
+      const res = await fetch(`http://127.0.0.1:5000/posts/${postId}`, { method: 'DELETE' });
+      if (res.ok) {
+        alert("삭제되었습니다.");
+        window.location.href = "/";
+      } else {
+        alert("삭제 실패");
+      }
+    }
+
+    async function enablePostEdit() {
+      const titleEl = document.getElementById('post-title');
+      const contentEl = document.getElementById('post-content');
+      const oldTitle = titleEl.innerText.replace('(수정됨)', '').trim();
+      const oldContent = contentEl.innerText;
+
+      const titleInput = document.createElement('input');
+      titleInput.type = 'text';
+      titleInput.value = oldTitle;
+      titleInput.style.width = '100%';
+      titleInput.style.fontSize = '20px';
+
+      const contentInput = document.createElement('textarea');
+      contentInput.value = oldContent;
+      contentInput.style.width = '100%';
+      contentInput.style.height = '150px';
+      contentInput.style.fontSize = '16px';
+
+      titleEl.innerHTML = '';
+      titleEl.appendChild(titleInput);
+      contentEl.innerHTML = '';
+      contentEl.appendChild(contentInput);
+      titleInput.focus();
+
+      contentInput.onkeydown = async (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          const newTitle = titleInput.value.trim();
+          const newContent = contentInput.value.trim();
+          if (!newTitle || !newContent) return;
+
+          const res = await fetch(`http://127.0.0.1:5000/posts/${postId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: newTitle, content: newContent })
+          });
+          if (res.ok) {
+            await getMyIpAndPost();
+          } else {
+            alert("수정 실패");
+          }
+        }
+      };
+
+      document.getElementById('post-menu').style.display = 'none';
+    }
+
+    async function enableCommentEdit(commentId) {
+      const commentDiv = document.querySelector(`.comment[data-id="${commentId}"]`);
+      const contentDiv = commentDiv.querySelector('.comment-content');
+      const oldText = contentDiv.innerText.replace('(수정됨)', '').trim();
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = oldText;
+      input.style.width = '100%';
+
+      input.onkeydown = async (e) => {
+        if (e.key === 'Enter') {
+          const newContent = input.value.trim();
+          if (!newContent) return;
+
+          const res = await fetch(`http://127.0.0.1:5000/comments/${commentId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: newContent })
+          });
+
+          if (res.ok) {
+            loadComments();
+          } else {
+            alert("수정 실패");
+          }
+        }
+      };
+
+      contentDiv.innerHTML = '';
+      contentDiv.appendChild(input);
+      input.focus();
+      commentDiv.querySelector('.comment-menu').style.display = 'none';
+    }
+
+    async function deleteComment(commentId) {
+      if (!confirm("정말 삭제하시겠습니까?")) return;
+      const res = await fetch(`http://127.0.0.1:5000/comments/${commentId}`, { method: 'DELETE' });
+      if (res.ok) loadComments();
+      else alert("삭제 실패");
+    }
+
+    document.getElementById('comment-btn').addEventListener('click', async () => {
+      const content = document.getElementById('comment-input').value.trim();
+      if (!content) return alert("내용을 입력해주세요.");
+      await fetch(`http://127.0.0.1:5000/posts/${postId}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content })
+      });
+      document.getElementById('comment-input').value = '';
+      loadComments();
+    });
+
+    document.querySelector('.post-menu-btn').addEventListener('click', () => {
+      const menu = document.getElementById('post-menu');
+      menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    });
+
+    let currentReportTarget = { type: '', id: null };
+
+    function openReportModal(type, id) {
+      currentReportTarget = { type, id };
+      document.getElementById('report-modal-bg').style.display = 'block';
+    }
+
+    function closeReportModal() {
+      document.getElementById('report-modal-bg').style.display = 'none';
+      document.getElementById('report-other').style.display = 'none';
+      document.getElementById('report-other').value = '';
+      document.querySelectorAll('input[name="report-reason"]').forEach(r => r.checked = false);
+    }
+
+    async function submitReport() {
+      let reason = document.querySelector('input[name="report-reason"]:checked');
+      if (!reason) return alert("사유를 선택해주세요.");
+      reason = reason.value;
+      if (reason === '기타') {
+        const other = document.getElementById('report-other').value.trim();
+        if (!other) return alert("기타 사유를 입력해주세요.");
+        reason = other;
+      }
+
+      const res = await fetch('http://127.0.0.1:5000/report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          report_type: currentReportTarget.type,
+          target_id: currentReportTarget.id,
+          reason
+        })
+      });
+
+      if (res.ok) {
+        alert("신고가 접수되었습니다.");
+        closeReportModal();
+      } else {
+        alert("신고 실패");
+      }
+    }
+
+    document.addEventListener('change', (e) => {
+      if (e.target.name === 'report-reason') {
+        const otherBox = document.getElementById('report-other');
+        otherBox.style.display = e.target.value === '기타' ? 'block' : 'none';
+      }
+    });
+
+    (async () => {
+      await getMyIpAndPost();
+      await loadComments();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>관리자 로그인</title>
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .login-container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      width: 320px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    .error {
+      color: red;
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>관리자 로그인</h2>
+    <input type="text" id="username" placeholder="아이디">
+    <input type="password" id="password" placeholder="비밀번호">
+    <button onclick="login()">로그인</button>
+    <div class="error" id="error-msg"></div>
+  </div>
+
+  <script>
+    async function login() {
+        const id = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const msgDiv = document.getElementById('error-msg');
+
+        msgDiv.textContent = ''; // 초기화
+
+        try {
+        const res = await fetch('http://127.0.0.1:5000/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ id, password })
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+            msgDiv.style.color = 'green';
+            msgDiv.textContent = '✅ 로그인 성공!';
+            setTimeout(() => {
+            window.location.href = 'admin.html';
+            }, 1000);
+        } else {
+            msgDiv.style.color = 'red';
+            msgDiv.textContent = result.error || '❌ 로그인 실패. 아이디 또는 비밀번호를 확인해주세요.';
+        }
+        } catch (err) {
+        msgDiv.style.color = 'red';
+        msgDiv.textContent = '❌ 서버 오류. 다시 시도해주세요.';
+        }
+    }
+    </script>
+
+</body>
+</html>
