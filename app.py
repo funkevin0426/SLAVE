@@ -31,6 +31,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:/Users/jihoo/파이썬/SLAV
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+@app.route("/")
+def home():
+    return "Server is running"
+
 def get_client_ip():
     """클라이언트 IP 주소 가져오기 (프록시 X-Forwarded-For 처리 포함)"""
     if request.headers.get('X-Forwarded-For'):
