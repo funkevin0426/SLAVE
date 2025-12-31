@@ -28,7 +28,7 @@ CORS(app, supports_credentials=True)
 app.secret_key = os.environ.get('SECRET_KEY', 'my-very-secret-key-123')
 
 # SQLite DB 경로 설정
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
