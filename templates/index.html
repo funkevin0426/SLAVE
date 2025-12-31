@@ -163,7 +163,7 @@
       await loadPosts(currentPage);
     };
       async function checkAdminStatus() {
-      const res = await fetch('/is_admin', { credentials: 'include' });
+      const res = await fetch('/check-admin', { credentials: 'include' });
       const data = await res.json();
       sessionStorage.setItem('isAdmin', data.is_admin ? 'true' : 'false');
     }
