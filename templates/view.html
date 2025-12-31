@@ -288,14 +288,14 @@
     let postIp = '';
 
     async function getMyIp() {
-      const res = await fetch('http://127.0.0.1:5000/my-ip');
+      const res = await fetch('/my-ip');
       const data = await res.json();
       myIp = data.ip;
     }
 
     async function getMyIpAndPost() {
       await getMyIp();
-      const res = await fetch(`http://127.0.0.1:5000/posts/${postId}`);
+      const res = await fetch(`/posts/${postId}`);
       const data = await res.json();
       postIp = data.ip;
 
@@ -314,7 +314,7 @@
     }
 
     async function loadComments() {
-      const res = await fetch(`http://127.0.0.1:5000/posts/${postId}`);
+      const res = await fetch(`/posts/${postId}`);
       const data = await res.json();
       const commentsDiv = document.getElementById('comments-list');
       commentsDiv.innerHTML = '';
@@ -347,7 +347,7 @@
 
     async function deletePost() {
       if (!confirm("정말 삭제하시겠습니까?")) return;
-      const res = await fetch(`http://127.0.0.1:5000/posts/${postId}`, { method: 'DELETE' });
+      const res = await fetch(`/posts/${postId}`, { method: 'DELETE' });
       if (res.ok) {
         alert("삭제되었습니다.");
         window.location.href = "/";
@@ -387,7 +387,7 @@
           const newContent = contentInput.value.trim();
           if (!newTitle || !newContent) return;
 
-          const res = await fetch(`http://127.0.0.1:5000/posts/${postId}`, {
+          const res = await fetch(`/posts/${postId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ title: newTitle, content: newContent })
@@ -418,7 +418,7 @@
           const newContent = input.value.trim();
           if (!newContent) return;
 
-          const res = await fetch(`http://127.0.0.1:5000/comments/${commentId}`, {
+          const res = await fetch(`/comments/${commentId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ content: newContent })
@@ -440,7 +440,7 @@
 
     async function deleteComment(commentId) {
       if (!confirm("정말 삭제하시겠습니까?")) return;
-      const res = await fetch(`http://127.0.0.1:5000/comments/${commentId}`, { method: 'DELETE' });
+      const res = await fetch(`/comments/${commentId}`, { method: 'DELETE' });
       if (res.ok) loadComments();
       else alert("삭제 실패");
     }
@@ -448,7 +448,7 @@
     document.getElementById('comment-btn').addEventListener('click', async () => {
       const content = document.getElementById('comment-input').value.trim();
       if (!content) return alert("내용을 입력해주세요.");
-      await fetch(`http://127.0.0.1:5000/posts/${postId}/comments`, {
+      await fetch(`/posts/${postId}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content })
@@ -486,7 +486,7 @@
         reason = other;
       }
 
-      const res = await fetch('http://127.0.0.1:5000/report', {
+      const res = await fetch('/report', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -123,8 +123,8 @@
 <body>
   <header>Slave 게시판</header>
   <div class="container" id="post-list">
-    <a href="write.html" class="write-btn">✏️ 새 글 쓰기</a>
-    <a href="admin_login.html" style="
+    <a href="/write" class="write-btn">✏️ 새 글 쓰기</a>
+    <a href="/admin/login" style="
         float: right;
         margin: 10px;
         padding: 7px 11px;
@@ -163,7 +163,7 @@
       await loadPosts(currentPage);
     };
       async function checkAdminStatus() {
-      const res = await fetch('http://127.0.0.1:5000/is_admin', { credentials: 'include' });
+      const res = await fetch('/is_admin', { credentials: 'include' });
       const data = await res.json();
       sessionStorage.setItem('isAdmin', data.is_admin ? 'true' : 'false');
     }
@@ -176,7 +176,7 @@
       const tag = document.getElementById('tag-select').value;
       const order = document.getElementById('sort-select').value;
 
-      const url = new URL('http://127.0.0.1:5000/posts');
+      const url = new URL('/posts');
       url.searchParams.set('page', page);
       if (query) url.searchParams.set('query', query);
       if (tag) url.searchParams.set('tag', tag);
