@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from flask import render_template
 import hashlib
 import math
 import dotenv
@@ -34,6 +35,11 @@ db = SQLAlchemy(app)
 @app.route("/")
 def home():
     return "Server is running"
+
+@app.route("/")
+def home():
+    return render_template("index.html")
+
 
 def get_client_ip():
     """클라이언트 IP 주소 가져오기 (프록시 X-Forwarded-For 처리 포함)"""
