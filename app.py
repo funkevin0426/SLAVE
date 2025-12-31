@@ -36,6 +36,18 @@ db = SQLAlchemy(app)
 def home():
     return render_template("index.html")
 
+@app.route("/write")
+def write_page():
+    return render_template("write.html")
+
+@app.route("/view")
+def view_page():
+    return render_template("view.html")
+
+@app.route("/admin/login")
+def admin_login():
+    return render_template("admin_login.html")
+
 @app.route("/health")
 def health():
     return "Server is running"
@@ -202,7 +214,6 @@ def create_post():
                     headers = {
                         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
                         "Content-Type": "application/json",
-                        "HTTP-Referer": "http://127.0.0.1:5000",
                         "X-Title": "Flask Forum App"
                     }
 
