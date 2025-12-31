@@ -45,7 +45,7 @@ def view_page():
     return render_template("view.html")
 
 @app.route("/admin/login")
-def admin_login():
+def admin_login_page():
     return render_template("admin_login.html")
 
 @app.route("/health")
