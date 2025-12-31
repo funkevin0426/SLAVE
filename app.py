@@ -34,11 +34,11 @@ db = SQLAlchemy(app)
 
 @app.route("/")
 def home():
-    return "Server is running"
-
-@app.route("/")
-def home():
     return render_template("index.html")
+
+@app.route("/health")
+def health():
+    return "Server is running"
 
 
 def get_client_ip():
