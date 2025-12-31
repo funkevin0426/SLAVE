@@ -28,7 +28,7 @@ CORS(app, supports_credentials=True)
 app.secret_key = os.environ.get('SECRET_KEY', 'my-very-secret-key-123')
 
 # SQLite DB 경로 설정
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/posts.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -436,7 +436,8 @@ def get_reports():
         result.append(item)
     return jsonify({'reports': result})
 
+with app.app_context():
+    db.create_all()
+    
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
     app.run(host='0.0.0.0', port=5000, debug=True)
