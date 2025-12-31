@@ -176,7 +176,7 @@
       const tag = document.getElementById('tag-select').value;
       const order = document.getElementById('sort-select').value;
 
-      const url = new URL('/posts');
+      const url = new URL('/posts', window.location.origin);
       url.searchParams.set('page', page);
       if (query) url.searchParams.set('query', query);
       if (tag) url.searchParams.set('tag', tag);
@@ -217,11 +217,9 @@
               댓글수: ${post.comment_count}
             </div>
           `;
-        if (isAdmin) {
-          html += `<button onclick="deletePost(${post.id})">삭제</button>`;
-        }
+            //여기에 괄자 삭제 버튼 넣읍시다?
         div.onclick = () => {
-          window.location.href = `view.html?id=${post.id}`;
+          window.location.href = `/view?id=${post.id}`;
         };
         postsDiv.appendChild(div);
       });
