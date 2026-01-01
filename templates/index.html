@@ -63,6 +63,16 @@
       border-radius: 4px;
       cursor: pointer;
     }
+    .admin-login-box button {
+      float: right;
+      margin: 10px;
+      padding: 7px 11px;
+      background-color: #3498db;
+      color: white;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: bold;
+    }
 
     .search-box button:hover {
       background-color: #2980b9;
@@ -121,19 +131,12 @@
   </style>
 </head>
 <body>
-  <header>Slave 게시판</header>
+  <header>
+  Slave 게시판
+  <span id="admin-area" style="float:right; font-size: 0.9rem;"></span>
+  </header>
   <div class="container" id="post-list">
-    <a href="/write" class="write-btn">✏️ 새 글 쓰기</a>
-    <a href="/admin/login" style="
-        float: right;
-        margin: 10px;
-        padding: 7px 11px;
-        background-color: #3498db;
-        color: white;
-        border-radius: 4px;
-        text-decoration: none;
-        font-weight: bold;
-    ">관리자 로그인</a> 
+    <a href="/write" class="write-btn">✏️ 새 글 쓰기</a>    
     <div class="search-box">
       <input type="text" id="search-input" placeholder="게시글 제목 또는 내용 검색" />
       <select id="tag-select">
@@ -154,6 +157,35 @@
   </div>
 
   <script>
+      function renderAdminButton() {
+        const adminArea = document.getElementById('admin-area');
+        const isAdmin = sessionStorage.getItem('isAdmin') === 'true';
+
+        if (isAdmin) {
+          adminArea.innerHTML = `
+            <a href="/admin/logout" style="
+              color: white;
+              background: #e74c3c;
+              padding: 6px 10px;
+              border-radius: 4px;
+              text-decoration: none;
+              margin-left: 10px;
+            ">로그아웃</a>
+          `;
+        } else {
+          adminArea.innerHTML = `
+            <a href="/admin/login" style="
+              color: white;
+              background: #3498db;
+              padding: 6px 10px;
+              border-radius: 4px;
+              text-decoration: none;
+              margin-left: 10px;
+            ">관리자 로그인</a>
+          `;
+        }
+      }
+
       function maskIp(ip) {
         return ip.substring(0, 4) + '****';
       }
@@ -166,6 +198,7 @@
       const res = await fetch('/check-admin', { credentials: 'include' });
       const data = await res.json();
       sessionStorage.setItem('isAdmin', data.is_admin ? 'true' : 'false');
+      renderAdminButton();
     }
     const POSTS_PER_PAGE = 20;
     let currentPage = 1;
