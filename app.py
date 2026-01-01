@@ -378,15 +378,14 @@ if not hasattr(Post, 'tag'):
     Post.tag = db.Column(db.String(20), default='잡글')
 
 # 관리자 인증용 계정 (간단 구현)
-ADMIN_USERNAME = '신이난케빈이'
-ADMIN_PASSWORD = '!qkrwlgn0'  # 실제 서비스에서는 암호화 필요
-app.secret_key = 'your_secret_key_here'
+ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME')
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
 
 @app.route('/check-admin')
 def check_admin():
     return jsonify({'is_admin': session.get('admin', False)})
 
-@app.route('/login', methods=['POST'])
+@app.route('/admin/login', methods=['POST'])
 def admin_login():
     data = request.json
     username = data.get('id')  # 클라이언트에서 'id'로 보냄
@@ -401,7 +400,7 @@ def admin_login():
     else:
         return jsonify({'error': '아이디 또는 비밀번호가 틀렸습니다.'}), 401
 
-@app.route('/logout', methods=['POST'])
+@app.route('/admin/logout', methods=['POST'])
 def logout():
     session.pop('admin', None)
     return jsonify({'message': '로그아웃 완료'})
