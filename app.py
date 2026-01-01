@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask import render_template
@@ -400,10 +400,11 @@ def admin_login():
     else:
         return jsonify({'error': '아이디 또는 비밀번호가 틀렸습니다.'}), 401
 
-@app.route('/admin/logout', methods=['POST'])
-def logout():
+@app.route('/admin/logout')
+def admin_logout():
     session.pop('admin', None)
-    return jsonify({'message': '로그아웃 완료'})
+    return redirect(url_for('home'))
+
 
 @app.route('/admin/status', methods=['GET'])
 def admin_status():

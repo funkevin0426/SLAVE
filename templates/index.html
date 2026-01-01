@@ -157,13 +157,14 @@
   </div>
 
   <script>
+      sessionStorage.removeItem('isAdmin');
       function renderAdminButton() {
         const adminArea = document.getElementById('admin-area');
         const isAdmin = sessionStorage.getItem('isAdmin') === 'true';
 
         if (isAdmin) {
           adminArea.innerHTML = `
-            <a href="/admin/logout" onclick="sessionStorage.removeItem('isAdmin')" style="
+            <a href="/admin/logout"> style="
               color: white;
               background: #e74c3c;
               padding: 6px 10px;
