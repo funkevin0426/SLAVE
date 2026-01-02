@@ -215,7 +215,6 @@
 
       /* 페이지 로드시 렌더 */
       window.addEventListener('load', renderContactBox);
-      sessionStorage.removeItem('isAdmin');
       function renderAdminButton() {
         const adminArea = document.getElementById('admin-area');
         const isAdmin = sessionStorage.getItem('isAdmin') === 'true';
@@ -340,6 +339,17 @@
     document.getElementById('sort-select').addEventListener('change', () => loadPosts(1));
 
     loadPosts(currentPage);
+    document.addEventListener('click', function (e) {
+      const box = document.getElementById('contact-box');
+      const button = document.querySelector('.contact-btn');
+
+      if (!box || box.style.display !== 'block') return;
+
+      // 버튼이나 박스 내부를 클릭한 게 아니라면 닫기
+      if (!box.contains(e.target) && !button.contains(e.target)) {
+        box.style.display = 'none';
+      }
+});
   </script>
 </body>
 </html>

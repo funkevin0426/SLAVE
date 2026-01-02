@@ -288,6 +288,7 @@
       const data = await res.json();
       isAdmin = data.is_admin === true;
     }
+    let isAdmin = false;
     const postId = new URLSearchParams(window.location.search).get('id');
     let myIp = '';
     let postIp = '';
@@ -342,7 +343,11 @@
         `;
 
         const menu = div.querySelector('.comment-menu');
-        if (comment.ip === myIp) {
+        if (isAdmin) {
+          menu.innerHTML = `
+            <div onclick="deleteComment(${comment.id})" style="color:red;">댓글 삭제 (관리자)</div>
+          `;
+        } else if (comment.ip === myIp) {
           menu.innerHTML = `<div onclick="enableCommentEdit(${comment.id})">댓글 수정</div><div onclick="deleteComment(${comment.id})">댓글 삭제</div>`;
         } else {
           menu.innerHTML = `<div onclick="openReportModal('comment', ${comment.id})">댓글 신고</div>`;
@@ -455,7 +460,6 @@
       if (res.ok) loadComments();
       else alert("삭제 실패");
     }
-
     document.getElementById('comment-btn').addEventListener('click', async () => {
       const content = document.getElementById('comment-input').value.trim();
       if (!content) return alert("내용을 입력해주세요.");
