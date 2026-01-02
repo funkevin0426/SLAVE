@@ -283,6 +283,11 @@
   </div>
 
   <script>
+    async function checkAdminStatus() {
+      const res = await fetch('/check-admin', { credentials: 'include' });
+      const data = await res.json();
+      isAdmin = data.is_admin === true;
+    }
     const postId = new URLSearchParams(window.location.search).get('id');
     let myIp = '';
     let postIp = '';
@@ -294,7 +299,9 @@
     }
 
     async function getMyIpAndPost() {
+      await checkAdminStatus();
       await getMyIp();
+
       const res = await fetch(`/posts/${postId}`);
       const data = await res.json();
       postIp = data.ip;
@@ -306,7 +313,11 @@
       document.getElementById('post-content').innerHTML = DOMPurify.sanitize(marked.parse(data.content));
 
       const menu = document.getElementById('post-menu');
-      if (myIp === postIp) {
+      if (isAdmin) {
+        menu.innerHTML = `
+          <div onclick="deletePost()" style="color:red;">게시글 삭제 (관리자)</div>
+        `;
+      } else if (myIp === postIp) {
         menu.innerHTML = `<div onclick="enablePostEdit()">게시글 수정</div><div onclick="deletePost()">게시글 삭제</div>`;
       } else {
         menu.innerHTML = `<div onclick="openReportModal('post', ${postId})">게시글 신고</div>`;
