@@ -128,11 +128,47 @@
       color: black;
       font-weight: bold;
     }
+    .contact-btn {
+      color: white;
+      background: #16a085;
+      padding: 6px 10px;
+      border-radius: 4px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .contact-box {
+      position: absolute;
+      top: 60px;
+      left: 10px;
+      background: white;
+      color: #333;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 10px;
+      width: 220px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      display: none;
+      z-index: 1000;
+    }
+
+    .contact-box a {
+      display: block;
+      color: #3498db;
+      text-decoration: none;
+      margin: 6px 0;
+      font-size: 0.9rem;
+    }
+
+    .contact-box a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
   <header>
   Slave 게시판
+  <span id="callcenter-area" style="float:left; font-size: 0.9rem;"></span>
   <span id="admin-area" style="float:right; font-size: 0.9rem;"></span>
   </header>
   <div class="container" id="post-list">
@@ -157,6 +193,27 @@
   </div>
 
   <script>
+      function renderContactBox() {
+        const area = document.getElementById('callcenter-area');
+
+        area.innerHTML = `
+          <span class="contact-btn" onclick="toggleContactBox()">관리자 연락처</span>
+          <div id="contact-box" class="contact-box">
+            <strong>문의 채널</strong>
+            <a href="https://discord.gg/8rhPTsVaUp" target="_blank">📌 Discord</a>
+            <a href="https://www.youtube.com/@신이난케빈이" target="_blank">▶ YouTube</a>
+            <a href="mailto:jihookevin@gmail.com">✉ Email</a>
+          </div>
+        `;
+      }
+
+      function toggleContactBox() {
+        const box = document.getElementById('contact-box');
+        box.style.display = box.style.display === 'block' ? 'none' : 'block';
+      }
+
+      /* 페이지 로드시 렌더 */
+      window.addEventListener('load', renderContactBox);
       sessionStorage.removeItem('isAdmin');
       function renderAdminButton() {
         const adminArea = document.getElementById('admin-area');
